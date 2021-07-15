@@ -26,12 +26,8 @@ const Home = (): JSX.Element => {
   const { addProduct, cart } = useCart();
 
   const cartItemsAmount = cart.reduce((sumAmount, product) => {
-    // const obj = (sumAmount[product.id] = sumAmount[product.id] || 0) + 1;
-    // const value = Number(Object.values(sumAmount)) + 1;
-    console.log(sumAmount);
-    console.log(cart);
-
-    return { [product.id]: 0 };
+    const sumProduct = (sumAmount[product.id] || 0) + 1;
+    return { ...sumAmount, [product.id]: sumProduct };
   }, {} as CartItemsAmount);
 
   useEffect(() => {
@@ -41,10 +37,7 @@ const Home = (): JSX.Element => {
       const productsFormatted = data.map((product) => {
         return {
           ...product,
-          priceFormatted: new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(product.price),
+          priceFormatted: formatPrice(product.price),
         };
       });
 
