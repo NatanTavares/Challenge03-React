@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { api } from "../services/api";
 import { Product, Stock } from "../types";
+import { formatPrice } from "../util/format";
 
 interface CartProviderProps {
   children: ReactNode;
@@ -45,8 +46,28 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (productId: number) => {
     try {
-      const { data } = await api.get(`products/${productId}`);
-      setCart([...cart, data]);
+      const itemFound = cart.find((product) => product.id === productId);
+
+      if (itemFound) {
+        const updatedCart = cart.map((product) => {
+          if (product.id === productId) {
+            return { ...product, amount: product.amount + 1 };
+          }
+
+          return product;
+        });
+
+        setCart([...updatedCart]);
+      } else {
+        const { data } = await api.get(`products/${productId}`);
+        const product = {
+          ...data,
+          price: formatPrice(data.price),
+          amount: 1,
+        };
+
+        setCart([...cart, product]);
+      }
     } catch {
       notifyError();
     }
