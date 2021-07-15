@@ -43,6 +43,15 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     return [];
   });
 
+  function onSetCart(products: Product[]) {
+    try {
+      setCart([...products]);
+      localStorage.setItem("@RocketShoes:cart", JSON.stringify(products));
+    } catch {
+      notifyError();
+    }
+  }
+
   const addProduct = async (productId: number) => {
     try {
       const itemFound = cart.find((product) => product.id === productId);
@@ -61,7 +70,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
           amount: 1,
         };
 
-        setCart([...cart, product]);
+        onSetCart([...cart, product]);
       }
     } catch {
       notifyError();
@@ -71,7 +80,7 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   const removeProduct = (productId: number) => {
     try {
       const data = cart.filter((product) => product.id !== productId);
-      setCart([...data]);
+      onSetCart([...data]);
     } catch {
       notifyError();
     }
@@ -93,10 +102,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
           return product;
         });
 
-        setCart([...updatedCart]);
+        onSetCart([...updatedCart]);
       }
     } catch {
-      // TODO
+      notifyError();
     }
   };
 
