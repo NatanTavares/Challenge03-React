@@ -2,7 +2,6 @@ import { createContext, ReactNode, useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { api } from "../services/api";
 import { Product, Stock } from "../types";
-import { formatPrice } from "../util/format";
 
 interface CartProviderProps {
   children: ReactNode;
@@ -49,20 +48,16 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const itemFound = cart.find((product) => product.id === productId);
 
       if (itemFound) {
-        const updatedCart = cart.map((product) => {
-          if (product.id === productId) {
-            return { ...product, amount: product.amount + 1 };
-          }
+        const incrementAmount = itemFound.amount + 1;
 
-          return product;
+        updateProductAmount({
+          productId: itemFound.id,
+          amount: incrementAmount,
         });
-
-        setCart([...updatedCart]);
       } else {
         const { data } = await api.get(`products/${productId}`);
         const product = {
           ...data,
-          price: formatPrice(data.price),
           amount: 1,
         };
 
@@ -75,9 +70,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      // TODO
+      const data = cart.filter((product) => product.id !== productId);
+      setCart([...data]);
     } catch {
-      // TODO
+      notifyError();
     }
   };
 
@@ -86,7 +82,19 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
     amount,
   }: UpdateProductAmount) => {
     try {
-      // TODO
+      const productFound = cart.find((product) => product.id === productId);
+
+      if (productFound) {
+        const updatedCart = cart.map((product) => {
+          if (product.id === productId) {
+            return { ...product, amount };
+          }
+
+          return product;
+        });
+
+        setCart([...updatedCart]);
+      }
     } catch {
       // TODO
     }
