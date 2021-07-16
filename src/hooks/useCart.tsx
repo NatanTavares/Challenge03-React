@@ -42,21 +42,21 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   }
 
   async function checkInStock(productId: number) {
-    const responseStock = await api.get<Stock>(`stock/${productId}`);
-    return responseStock.data;
+    const { data } = await api.get<Stock>(`stock/${productId}`);
+    return data;
   }
 
   const addProduct = async (productId: number) => {
     try {
       const stock = await checkInStock(productId);
-      const itemFound = cart.find((product) => product.id === productId);
+      const product = cart.find((product) => product.id === productId);
 
-      if (!!itemFound) {
-        if (itemFound.amount < stock.amount) {
-          const incrementAmount = itemFound.amount + 1;
+      if (!!product) {
+        if (product.amount < stock.amount) {
+          const incrementAmount = product.amount + 1;
 
           updateProductAmount({
-            productId: itemFound.id,
+            productId: product.id,
             amount: incrementAmount,
           });
         } else {
@@ -82,8 +82,8 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      const bool = cart.find((product) => product.id === productId);
-      if (!!bool) {
+      const product = cart.find((product) => product.id === productId);
+      if (!!product) {
         const data = cart.filter((product) => product.id !== productId);
 
         onSetCart([...data]);
